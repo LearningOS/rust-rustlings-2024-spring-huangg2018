@@ -31,7 +31,6 @@ enum ParsePersonError {
     ParseInt(ParseIntError),
 }
 
-// I AM NOT DONE
 
 // Steps:
 // 1. If the length of the provided string is 0, an error should be returned
@@ -55,10 +54,39 @@ impl FromStr for Person {
         if s.len() == 0 {
             return Err(Self::Err::Empty);
         }
-        let p:Vec<&str> = s.split(',').into_iter().filter(|x|{
-            x.len()!=0}).collect();
+        let p:Vec<&str> = s.split(',').collect();
         println!("{:?}", p);
-        Ok(())
+        let mut piter = p.clone().into_iter();
+        let name = piter.next();
+        let age = piter.next();
+        let len = p.len();
+
+        if  name.is_none() || name.unwrap().len() == 0  {
+            return Err(Self::Err::NoName);
+        }
+        let age = match age {
+            Some(age) =>{
+                match age.parse::<usize>() {
+                    Ok(a) =>Some(a),
+                    Err(e) => {return Err(Self::Err::ParseInt(e))}
+                }
+            }
+            None => {None}
+
+        };
+        println!("out:---name:{name:?}----age:{age:?}----len:{len:?}---");
+
+        if len !=2 {
+            return Err(Self::Err::BadLen);
+        }
+        if age.is_none(){
+            return Err(Self::Err::Empty);
+        }
+        let age = age.unwrap();
+        return Ok(Person{
+            name: name.unwrap().to_string(),
+            age: age,
+        })
     }
 }
 
