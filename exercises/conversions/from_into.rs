@@ -40,10 +40,45 @@ impl Default for Person {
 // If while parsing the age, something goes wrong, then return the default of
 // Person Otherwise, then return an instantiated Person object with the results
 
-// I AM NOT DONE
 
 impl From<&str> for Person {
     fn from(s: &str) -> Person {
+        if s.len() == 0 {
+            return Default::default()
+        }
+        let p:Vec<&str> = s.split(',').collect();
+        println!("{:?}", p);
+        let mut piter = p.clone().into_iter();
+        let name = piter.next();
+        let age = piter.next();
+        let len = p.len();
+
+        if  name.is_none() || name.unwrap().len() == 0  {
+            return Default::default();
+        }
+        let age = match age {
+            Some(age) =>{
+                match age.parse::<usize>() {
+                    Ok(a) =>Some(a),
+                    Err(e) => {None}
+                }
+            }
+            None => {None}
+
+        };
+        println!("out:---name:{name:?}----age:{age:?}----len:{len:?}---");
+
+        if len !=2 {
+            return Default::default();
+        }
+        if age.is_none(){
+            return Default::default();
+        }
+        let age = age.unwrap();
+        return Person{
+            name: name.unwrap().to_string(),
+            age: age,
+        }
     }
 }
 
@@ -92,6 +127,7 @@ mod tests {
     #[test]
     fn test_missing_comma_and_age() {
         let p: Person = Person::from("Mark");
+        println!("{:?}", p);
         assert_eq!(p.name, "John");
         assert_eq!(p.age, 30);
     }
