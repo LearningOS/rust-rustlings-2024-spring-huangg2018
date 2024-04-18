@@ -31,13 +31,13 @@ struct LinkedList<T> {
     end: Option<NonNull<Node<T>>>,
 }
 
-impl<T> Default for LinkedList<T> {
+impl<T: std::cmp::PartialOrd + Clone> Default for LinkedList<T> {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl<T> LinkedList<T> {
+impl<T: std::cmp::PartialOrd + Clone> LinkedList<T> {
     pub fn new() -> Self {
         Self {
             length: 0,
@@ -72,8 +72,28 @@ impl<T> LinkedList<T> {
             },
         }
     }
+
+    pub fn update_value(&mut self, index: i32,value:T){
+        self.update_ith_value(self.start, index, value)
+    }
+
+    pub fn update_ith_value(&mut self, node:Option<NonNull<Node<T>>>, index: i32,value:T){
+        match node {
+            None => None,
+            Some(next_ptr) => match index {
+                0 => unsafe { &(*next_ptr.as_ptr()).val = &value},
+                _ => self.update_ith_value(unsafe { (*next_ptr.as_ptr()).next }, index - 1, value),
+            },
+        }
+    }
+
 	pub fn reverse(&mut self){
 		// TODO
+        let mut last_node_val = self.get((self.length - 1).try_into().unwrap());
+        let mut first_node_val = self.get((0).try_into().unwrap());
+
+
+
 	}
 }
 
