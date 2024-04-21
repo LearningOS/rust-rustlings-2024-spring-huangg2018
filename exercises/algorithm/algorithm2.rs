@@ -2,12 +2,11 @@
 	double linked list reverse
 	This problem requires you to reverse a doubly linked list
 */
-// I AM NOT DONE
 
 use std::fmt::{self, Display, Formatter};
 use std::ptr::NonNull;
 use std::vec::*;
-
+use std::mem;
 #[derive(Debug)]
 struct Node<T> {
     val: T,
@@ -31,13 +30,13 @@ struct LinkedList<T> {
     end: Option<NonNull<Node<T>>>,
 }
 
-impl<T: std::cmp::PartialOrd + Clone> Default for LinkedList<T> {
+impl<T> Default for LinkedList<T> {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl<T: std::cmp::PartialOrd + Clone> LinkedList<T> {
+impl<T> LinkedList<T> {
     pub fn new() -> Self {
         Self {
             length: 0,
@@ -49,7 +48,7 @@ impl<T: std::cmp::PartialOrd + Clone> LinkedList<T> {
     pub fn add(&mut self, obj: T) {
         let mut node = Box::new(Node::new(obj));
         node.next = None;
-        node.prev = self.end;
+        node.prev = self.end; 
         let node_ptr = Some(unsafe { NonNull::new_unchecked(Box::into_raw(node)) });
         match self.end {
             None => self.start = node_ptr,
@@ -73,26 +72,15 @@ impl<T: std::cmp::PartialOrd + Clone> LinkedList<T> {
         }
     }
 
-    pub fn update_value(&mut self, index: i32,value:T){
-        self.update_ith_value(self.start, index, value)
-    }
-
-    pub fn update_ith_value(&mut self, node:Option<NonNull<Node<T>>>, index: i32,value:T){
-        match node {
-            None => None,
-            Some(next_ptr) => match index {
-                0 => unsafe { &(*next_ptr.as_ptr()).val = &value},
-                _ => self.update_ith_value(unsafe { (*next_ptr.as_ptr()).next }, index - 1, value),
-            },
-        }
-    }
-
 	pub fn reverse(&mut self){
 		// TODO
-        let mut last_node_val = self.get((self.length - 1).try_into().unwrap());
-        let mut first_node_val = self.get((0).try_into().unwrap());
-
-
+        let mut current_ptr = self.start;
+        while let Some(current) = current_ptr {
+            let mut current_node = unsafe { current.as_ptr().as_mut().unwrap() };
+            std::mem::swap(&mut current_node.prev, &mut current_node.next);
+            current_ptr = current_node.prev;
+        }
+        std::mem::swap(&mut self.start, &mut self.end);
 
 	}
 }
